@@ -13,6 +13,8 @@
 Требуемые дополнительные коллекции ansible:
 community.docker-4.3.0.info
 
+Приложение находится по пути files/app.
+
 Версия контейнеров nginx и postgresql:
 - postgres:13-alpine
 - nginx:alpine
