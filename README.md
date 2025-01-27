@@ -22,7 +22,7 @@ community.docker-4.3.0.info
 Конфигурация ansible описана в ansible.cfg в директории проекта.
 
 ## Логирование:
-Ansible - ansible.log, файл будет располагаться в директории проекта.
+Ansible - logs, файл будет располагаться в директории проекта.
 Docker-compose - docker_compose_logs.txt, файл будет располагаться в директории проекта.
 
 ## Запуск:
