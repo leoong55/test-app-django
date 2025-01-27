@@ -14,6 +14,7 @@
 community.docker-4.3.0.info
 
 Приложение находится по пути files/app.
+Шаблон конфигурации nginx находится по пути files/nginx.conf.j2 
 
 Версия контейнеров nginx и postgresql:
 - postgres:13-alpine
