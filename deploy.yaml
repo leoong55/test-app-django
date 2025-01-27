@@ -77,12 +77,12 @@
       loop: "{{ container_info.results }}"
       when: item.container is defined and 'State' in item.container  
 
-    - name: Fail if any container is not running or unhealthy
+    - name: Fail if any container is not running
       fail:
         msg: "Container {{ item.container.Id }} is not running"
       when: item.container.State.Status != 'running'
       loop: "{{ container_info.results }}"
 
-    - name: All containers are running and healthy
+    - name: All containers are running
       debug:
-        msg: "All containers are running and healthy."
+        msg: "All containers are running."
