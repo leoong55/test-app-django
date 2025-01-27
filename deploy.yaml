@@ -11,9 +11,6 @@
     - secrets.yml
   
   tasks:
-    - name: Download Docker Compose binary
-      debug:
-        msg: "https://github.com/docker/compose/releases/download/1.23.2/docker-compose-{{ ansible_system | lower }}-{{ ansible_architecture | lower }}"
  
     - name: Check if Docker is installed
       command: docker --version
