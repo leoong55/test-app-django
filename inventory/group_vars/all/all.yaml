@@ -1,0 +1,7 @@
+---
+server_name: localhost           # Имя сервера Nginx
+app_container: my-django-image   # Имя контейнера вашего приложения
+db_host: db                      # Имя контейнера базы данных
+db_name: testdb                  # Имя базы данных
+db_user: testuser                # Пользователь базы данных
+db_password: testpass            # Пароль базы данных

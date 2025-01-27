@@ -1,0 +1,88 @@
+---
+- name: Deploy Django application
+  hosts: localhost 
+  gather_facts: yes 
+  become: yes
+  vars:
+    db_container_version: "postgres:13-alpine"
+    nginx_container_version: "nginx:alpine"
+
+  vars_files:
+    - secrets.yml
+  
+  tasks:
+    - name: Download Docker Compose binary
+      debug:
+        msg: "https://github.com/docker/compose/releases/download/1.23.2/docker-compose-{{ ansible_system | lower }}-{{ ansible_architecture | lower }}"
+ 
+    - name: Check if Docker is installed
+      command: docker --version
+      register: docker_version
+      ignore_errors: yes  
+
+    - name: Check if Docker Compose is installed
+      command: docker-compose --version
+      register: compose_version
+      ignore_errors: yes 
+
+    - name: Install Docker and Docker Compose if not installed
+      include_tasks: install_docker.yaml
+      when: docker_version is failed or compose_version is failed
+    
+    - name: Create Nginx configuration from template
+      template:
+        src: files/nginx.conf.j2
+        dest: /etc/nginx.conf
+      vars: 
+        proxy_pass: "http://app:8000"  
+        server_name: "mydomain.com"  
+
+    - name: Create docker-compose.yaml from template
+      template:
+        src: files/docker-compose.yaml.j2
+        dest: docker-compose.yaml
+
+    - name: Build and start containers
+      community.docker.docker_compose_v2:
+        project_src: .
+        state: present
+    
+    - name: Get logs from Docker Compose
+      command: docker-compose logs
+      register: docker_logs
+      ignore_errors: yes  
+
+    - name: Save logs to a file
+      copy:
+        content: "{{ docker_logs.stdout }}"
+        dest: docker_compose_logs.txt
+    
+    - name: Wait for 30 seconds for application to be ready
+      pause:
+        seconds: 30
+
+    - name: Get list of all containers
+      command: docker ps -a -q  
+      register: container_ids
+
+    - name: Get details of all containers
+      community.docker.docker_container_info:
+        name: "{{ item }}"
+      loop: "{{ container_ids.stdout_lines }}" 
+      register: container_info
+
+    - name: Display container statuses
+      debug:
+        msg: "Container {{ item.container.Id  }} is in state: {{ item.container.State.Status }}"
+      loop: "{{ container_info.results }}"
+      when: item.container is defined and 'State' in item.container  
+
+    - name: Fail if any container is not running or unhealthy
+      fail:
+        msg: "Container {{ item.container.Id }} is not running"
+      when: item.container.State.Status != 'running'
+      loop: "{{ container_info.results }}"
+
+    - name: All containers are running and healthy
+      debug:
+        msg: "All containers are running and healthy."

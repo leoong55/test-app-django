@@ -1,0 +1,52 @@
+---
+
+- name: Update system packages
+  dnf:
+   name: '*'
+   state: latest
+
+- name: Add Docker CE Stable repository
+  ansible.builtin.yum_repository:
+    name: docker-ce-stable
+    description: Docker CE Stable - $basearch
+    baseurl: https://download.docker.com/linux/rhel/$releasever/$basearch/stable
+    enabled: 1
+    gpgcheck: 1
+    gpgkey: https://download.docker.com/linux/rhel/gpg
+
+- name: Install Docker packages
+  dnf:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    state: present
+
+- name: Start Docker service
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Check Docker version
+  command: docker --version
+  register: docker_version
+
+- debug:
+    var: docker_version.stdout
+
+- name: Download Docker Compose binary
+  get_url:
+    url: "https://github.com/docker/compose/releases/download/1.23.2/docker-compose-{{ ansible_system | lower }}-{{ ansible_system_architecture | lower }}"
+    dest: /usr/local/bin/docker-compose
+    mode: '0755'
+
+- name: Check Docker Compose version
+  command: docker-compose --version
+  register: compose_version
+
+- name: Display Docker Compose version
+  debug:
+    var: compose_version.stdout

@@ -1,0 +1,13 @@
+---
+all:
+  children:
+    servers:
+      hosts:
+        host01:
+          ansible_ssh_host:
+
+        host02:
+          ansible_ssh_host:
+
+        host03:
+          ansible_ssh_host:
